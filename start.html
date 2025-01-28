@@ -1,0 +1,140 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syfer-eng's Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #121212;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 120px;
+        }
+
+        .navbar {
+            background-color: #1DB954;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar h1 {
+            margin: 0;
+            color: white;
+            font-size: 24px;
+        }
+
+        .game-container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .score-display {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .click-button {
+            padding: 20px 40px;
+            background-color: #1DB954;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .click-button:hover {
+            background-color: #1ed760;
+        }
+
+        .player-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1f1f1f;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-top: 2px solid #333;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls-wrapper {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .reset-button {
+            padding: 12px 25px;
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .reset-button:hover {
+            background-color: #1ed760;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>Syfer-eng's Game</h1>
+    </div>
+
+    <div class="game-container">
+        <div class="score-display" id="scoreDisplay">Score: 0</div>
+        <button class="click-button" id="clickButton" onclick="increaseScore()">Click Me!</button>
+    </div>
+
+    <div class="player-container">
+        <div class="controls-wrapper">
+            <button class="reset-button" onclick="resetGame()">Reset Game</button>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+
+        // Function to increase score on button click
+        function increaseScore() {
+            score++;
+            document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
+        }
+
+        // Function to reset the game
+        function resetGame() {
+            score = 0;
+            document.getElementById('scoreDisplay').textContent = `Score: 0`;
+        }
+    </script>
+
+</body>
+</html>
