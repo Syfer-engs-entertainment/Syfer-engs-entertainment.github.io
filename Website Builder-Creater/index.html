@@ -1,37 +1,39 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Site Builder & Host</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-<div class="pre-login-animation" id="preLoginAnim">
-    <div class="floating-shapes"></div>
-    <div class="welcome-text" style="top: 5%;">
+    <div class="pre-login-animation" id="preLoginAnim">
+        <div class="floating-shapes"></div>
+        <div class="welcome-text">
             <h1>Welcome To Syfer-eng's Site Builder</h1>
             <p>Create and host your websites instantly Using Syfer-eng's Smartness!</p>
         </div>
     </div>
 
     <div class="container">
-<div class="header" id="header" style="display: none;">
-    <div class="profile-section">
-        <span id="userDisplayName" class="username"></span>
-        <div class="dropdown">
-            <img src="https://github.com/Syfer-engs-entertainment/Syfer-engs-entertainment.github.io/blob/main/Starting%20Pfp/pfp.jpg?raw=true" 
-                 alt="Profile" 
-                 id="profilePic" 
-                 class="profile-pic">
-            <div class="dropdown-content">
-                <a href="#" id="changePicture"><i class="fas fa-camera"></i>Change Picture</a>
-                <a href="#" id="editProfile"><i class="fas fa-user-edit"></i>Edit Profile</a>
-                <a href="#" id="settings"><i class="fas fa-cog"></i>Settings</a>
-                <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i>Logout</a>
+        <div class="header" id="header" style="display: none;">
+            <div class="profile-section">
+                <span id="userDisplayName" class="username"></span>
+                <div class="dropdown">
+                    <img src="https://github.com/Syfer-engs-entertainment/Syfer-engs-entertainment.github.io/blob/main/Starting%20Pfp/pfp.jpg?raw=true" 
+                         alt="Profile" 
+                         id="profilePic" 
+                         class="profile-pic">
+                    <div class="dropdown-content">
+                        <a href="#" id="changePicture"><i class="fas fa-camera"></i>Change Picture</a>
+                        <a href="#" id="editProfile"><i class="fas fa-user-edit"></i>Edit Profile</a>
+                        <a href="#" id="settings"><i class="fas fa-cog"></i>Settings</a>
+                        <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i>Logout</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
         <div class="auth-container">
             <div class="form-wrapper">
@@ -88,6 +90,40 @@
                     <h2>Your Sites</h2>
                     <div id="sitesList" class="sites-grid"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Profile Settings</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>Profile Picture</h3>
+                    <div class="profile-pic-settings">
+                        <img id="settingsProfilePic" src="" alt="Profile Picture">
+                        <button id="changeProfilePic" class="settings-btn">Change Picture</button>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Account Settings</h3>
+                    <div class="input-group">
+                        <label>Display Name</label>
+                        <input type="text" id="displayName" placeholder="Enter display name">
+                    </div>
+                    <div class="input-group">
+                        <label>Theme</label>
+                        <select id="themeSelect">
+                            <option value="default">Default</option>
+                            <option value="dark">Dark</option>
+                            <option value="light">Light</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="saveSettings" class="submit-btn">Save Changes</button>
             </div>
         </div>
     </div>
