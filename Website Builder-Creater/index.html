@@ -15,7 +15,6 @@
             <p>Create and host your websites instantly Using Syfer-eng's Smartness!</p>
         </div>
     </div>
-
     <div class="container">
         <div class="header" id="header" style="display: none;">
             <div class="profile-section">
@@ -34,7 +33,6 @@
                 </div>
             </div>
         </div>
-
         <div class="auth-container">
             <div class="form-wrapper">
                 <div class="login-form" id="loginForm">
@@ -51,9 +49,8 @@
                         </label>
                         <button type="submit" class="submit-btn">Login</button>
                     </form>
-                    <p class="switch-form">Don't have an account? <a href="#" id="registerLink">Register here</a></p>
+                    <p class="switch-form">Don't have an account? <a href="#" id="registerLink" onclick="toggleForms('registerForm', 'loginForm')">Register here</a></p>
                 </div>
-
                 <div class="login-form" id="registerForm" style="display: none;">
                     <h2>Register</h2>
                     <form id="registerFormElement">
@@ -68,11 +65,10 @@
                         </div>
                         <button type="submit" class="submit-btn">Create Account</button>
                     </form>
-                    <p class="switch-form">Already have an account? <a href="#" id="loginLink">Login here</a></p>
+                    <p class="switch-form">Already have an account? <a href="#" id="loginLink" onclick="toggleForms('loginForm', 'registerForm')">Login here</a></p>
                 </div>
             </div>
         </div>
-
         <div class="content" id="content" style="display: none;">
             <div class="hosting-dashboard">
                 <div class="site-creator">
@@ -85,7 +81,6 @@
                         <button id="createSite">Create Site</button>
                     </div>
                 </div>
-                
                 <div class="sites-list">
                     <h2>Your Sites</h2>
                     <div id="sitesList" class="sites-grid"></div>
@@ -93,7 +88,6 @@
             </div>
         </div>
     </div>
-
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -127,7 +121,6 @@
             </div>
         </div>
     </div>
-
     <div id="sitePreview" class="site-preview">
         <div class="preview-header">
             <h3>Preview</h3>
@@ -135,11 +128,8 @@
         </div>
         <iframe id="previewFrame"></iframe>
     </div>
-
     <div id="notifications" class="notifications-container"></div>
-
     <input type="file" id="pictureInput" accept="image/*" style="display: none;">
-    
     <script src="script.js"></script>
 </body>
 </html>
