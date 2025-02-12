@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Builder & Host</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="pre-login-animation" id="preLoginAnim">
+        <div class="floating-shapes"></div>
+        <div class="welcome-text">
+            <h1>Welcome to Site Builder</h1>
+            <p>Create and host your websites instantly</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header" id="header" style="display: none;">
+            <div class="profile-section">
+                <img src="https://github.com/Syfer-engs-entertainment/Syfer-engs-entertainment.github.io/blob/main/Starting%20Pfp/pfp.jpg?raw=true" 
+                     alt="Profile" 
+                     id="profilePic" 
+                     class="profile-pic">
+                <div class="dropdown">
+                    <button class="settings-btn">⚙️</button>
+                    <div class="dropdown-content">
+                        <a href="#" id="changePicture">Change Picture</a>
+                        <a href="#" id="openSettings">Settings</a>
+                        <a href="#" id="logout">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-container">
+            <div class="login-form" id="loginForm">
+                <h2>Login</h2>
+                <form id="loginFormElement">
+                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe"> Remember Me
+                    </label>
+                    <button type="submit">Login</button>
+                </form>
+                <p>Don't have an account? <a href="#register" id="registerLink">Register here</a></p>
+            </div>
+
+            <div class="register-form" id="registerForm" style="display: none;">
+                <h2>Register</h2>
+                <form id="registerFormElement">
+                    <input type="text" id="regUsername" placeholder="Username" required>
+                    <input type="password" id="regPassword" placeholder="Password" required>
+                    <button type="submit">Register</button>
+                </form>
+                <p>Already have an account? <a href="#login" id="loginLink">Login here</a></p>
+            </div>
+        </div>
+
+        <div class="content" id="content" style="display: none;">
+            <div class="hosting-dashboard">
+                <div class="site-creator">
+                    <h2>Create Your Site</h2>
+                    <div class="site-form">
+                        <input type="text" id="siteName" placeholder="Site Name">
+                        <textarea id="siteHTML" placeholder="Enter your HTML code"></textarea>
+                        <textarea id="siteCSS" placeholder="Enter your CSS code"></textarea>
+                        <textarea id="siteJS" placeholder="Enter your JavaScript code (optional)"></textarea>
+                        <button id="createSite">Create Site</button>
+                    </div>
+                </div>
+                
+                <div class="sites-list">
+                    <h2>Your Sites</h2>
+                    <div id="sitesList" class="sites-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-fullscreen" id="settingsFullscreen">
+        <div class="settings-header">
+            <h1>Settings</h1>
+            <button class="close-settings" id="closeSettings">×</button>
+        </div>
+        <div class="settings-grid">
+            <div class="settings-card">
+                <h3>Profile</h3>
+                <div class="profile-preview">
+                    <img id="profilePreview" src="" alt="Profile Preview">
+                    <button id="uploadNewPic">Change Picture</button>
+                </div>
+                <input type="text" id="displayName" placeholder="Display Name">
+                <textarea id="bio" placeholder="Bio"></textarea>
+            </div>
+            
+            <div class="settings-card">
+                <h3>Appearance</h3>
+                <select id="themeSelect">
+                    <option value="default">Default Theme</option>
+                    <option value="dark">Dark Mode</option>
+                    <option value="light">Light Mode</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="color" id="customColor" title="Choose accent color">
+            </div>
+            
+            <div class="settings-card">
+                <h3>Privacy</h3>
+                <label>
+                    <input type="checkbox" id="profileVisibility"> Public Profile
+                </label>
+                <label>
+                    <input type="checkbox" id="activityStatus"> Show Activity Status
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="sitePreview" class="site-preview">
+        <div class="preview-header">
+            <h3>Preview</h3>
+            <button id="closePreview">×</button>
+        </div>
+        <iframe id="previewFrame"></iframe>
+    </div>
+
+    <input type="file" id="pictureInput" accept="image/*" style="display: none;">
+    
+    <script src="script.js"></script>
+</body>
+</html>
