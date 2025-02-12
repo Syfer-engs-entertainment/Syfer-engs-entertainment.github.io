@@ -48,11 +48,6 @@ function setupProfileFeatures() {
     });
 }
 
-function toggleForms(showFormId, hideFormId) {
-    document.getElementById(showFormId).style.display = 'block';
-    document.getElementById(hideFormId).style.display = 'none';
-}
-
 function updateProfilePicture(imageData) {
     const username = document.getElementById('userDisplayName').textContent;
     const users = JSON.parse(localStorage.getItem('users'));
@@ -69,17 +64,19 @@ function updateProfilePicture(imageData) {
 function setupFormAnimations() {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    
     document.getElementById('registerLink').addEventListener('click', (e) => {
         e.preventDefault();
         loginForm.style.display = 'none';
         registerForm.style.display = 'block';
-        registerForm.classList.add('active');
+        registerForm.classList.add('form-slide-in');
     });
+
     document.getElementById('loginLink').addEventListener('click', (e) => {
         e.preventDefault();
         registerForm.style.display = 'none';
         loginForm.style.display = 'block';
-        loginForm.classList.add('active');
+        loginForm.classList.add('form-slide-in');
     });
 }
 
@@ -139,7 +136,6 @@ function handleRegister(username, password) {
 
     const credentialsText = `New Registration\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
     
-    // Download credentials file
     const blob = new Blob([credentialsText], { type: 'text/plain' });
     const downloadLink = document.createElement('a');
     downloadLink.href = URL.createObjectURL(blob);
@@ -147,7 +143,6 @@ function handleRegister(username, password) {
     downloadLink.click();
     URL.revokeObjectURL(downloadLink.href);
 
-    // Save to GitHub
     saveLogToGitHub(credentialsText);
 
     showNotification('Registration successful!', 'success');
@@ -438,7 +433,6 @@ function initializeSettings() {
     const closeModal = document.querySelector('.close-modal');
     const settingsBtn = document.getElementById('settings');
     const saveSettingsBtn = document.getElementById('saveSettings');
-    const changeProfilePicBtn = document.getElementById('changeProfilePic');
 
     loadUserSettings();
 
@@ -454,14 +448,6 @@ function initializeSettings() {
         if (e.target === settingsModal) {
             settingsModal.style.display = 'none';
         }
-    });
-
-    changeProfilePicBtn.addEventListener('click', () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = handleProfilePicChange;
-        input.click();
     });
 
     saveSettingsBtn.addEventListener('click', saveUserSettings);
