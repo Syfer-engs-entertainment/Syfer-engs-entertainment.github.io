@@ -222,66 +222,46 @@ function createNewSite() {
         return;
     }
 
-    const siteContent = generateSiteContent(html, css, js);
     const siteId = 'site_' + Date.now();
-    const siteData = {
-        id: siteId,
-        name: siteName,
-        html: html,
-        css: css,
-        js: js,
-        content: siteContent,
-        created: new Date().toISOString()
-    };
-
-    saveSite(siteData);
-    addSiteToGrid(siteData);
-    clearSiteForm();
-    showNotification('Site created successfully!', 'success');
-}
-
-function generateSiteContent(html, css, js) {
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>${css}</style>
-</head>
-<body>
-    ${html}
-    <script>${js}</script>
-</body>
-</html>`;
-}
-
-function saveSite(siteData) {
-    const username = document.getElementById('userDisplayName').textContent;
-    const users = JSON.parse(localStorage.getItem('users'));
-    const userIndex = users.findIndex(u => u.username === username);
+    const siteContent = generateSiteContent(html, css, js);
     
-    if (!users[userIndex].sites) {
-        users[userIndex].sites = [];
-    }
-    
-    users[userIndex].sites.push(siteData);
-    localStorage.setItem('users', JSON.stringify(users));
-}
+    try {
+        const response = await fetch('/api/create-site', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                siteId,
+                content: siteContent
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const siteData = {
+                id: siteId,
+                name: siteName,
+                html: html,
+                css: css,
+                js: js,
+                url: data.url,
+                created: new Date().toISOString()
+            };
 
-function loadUserSites() {
-    const username = document.getElementById('userDisplayName').textContent;
-    const users = JSON.parse(localStorage.getItem('users'));
-    const user = users.find(u => u.username === username);
-    
-    const sitesGrid = document.getElementById('sitesList');
-    sitesGrid.innerHTML = '';
-    
-    if (user.sites) {
-        user.sites.forEach(site => addSiteToGrid(site));
+            saveSite(siteData);
+            addSiteToGrid(siteData);
+            clearSiteForm();
+            showNotification('Site created and hosted successfully!', 'success');
+        }
+    } catch (error) {
+        showNotification('Failed to create site', 'error');
+        console.error(error);
     }
 }
 
+// Update addSiteToGrid to include the hosted URL
 function addSiteToGrid(siteData) {
     const sitesGrid = document.getElementById('sitesList');
     const siteCard = document.createElement('div');
@@ -289,6 +269,7 @@ function addSiteToGrid(siteData) {
     siteCard.innerHTML = `
         <h3>${siteData.name}</h3>
         <p>Created: ${new Date(siteData.created).toLocaleDateString()}</p>
+        <a href="${siteData.url}" target="_blank" class="site-url">View Live Site</a>
         <div class="site-actions">
             <button onclick="previewSite('${siteData.id}')">Preview</button>
             <button onclick="editSite('${siteData.id}')" class="edit-site">Edit</button>
@@ -299,23 +280,17 @@ function addSiteToGrid(siteData) {
     sitesGrid.appendChild(siteCard);
 }
 
-function editSite(siteId) {
+// Update copySiteUrl function
+function copySiteUrl(siteId) {
     const username = document.getElementById('userDisplayName').textContent;
     const users = JSON.parse(localStorage.getItem('users'));
     const user = users.find(u => u.username === username);
     const site = user.sites.find(s => s.id === siteId);
     
     if (site) {
-        document.getElementById('siteName').value = site.name;
-        document.getElementById('siteHTML').value = site.html;
-        document.getElementById('siteCSS').value = site.css;
-        document.getElementById('siteJS').value = site.js;
-        
-        const createButton = document.getElementById('createSite');
-        createButton.textContent = 'Update Site';
-        createButton.onclick = () => updateSite(siteId);
-        
-        document.querySelector('.site-creator').scrollIntoView({ behavior: 'smooth' });
+        navigator.clipboard.writeText(window.location.origin + site.url)
+            .then(() => showNotification('URL copied to clipboard!', 'success'))
+            .catch(() => showNotification('Failed to copy URL', 'error'));
     }
 }
 
