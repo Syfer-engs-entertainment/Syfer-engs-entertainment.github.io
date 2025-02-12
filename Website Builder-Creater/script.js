@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFormAnimations();
     checkSavedCredentials();
     initializeSettings();
+    setupProfileFeatures();
 });
 
 function createFloatingShapes() {
@@ -17,6 +18,48 @@ function createFloatingShapes() {
         shape.style.animationDelay = `${Math.random() * 5}s`;
         shapes.appendChild(shape);
     }
+}
+
+function setupProfileFeatures() {
+    const editProfileBtn = document.getElementById('editProfile');
+    
+    editProfileBtn.addEventListener('click', () => {
+        document.getElementById('settingsModal').style.display = 'block';
+        document.querySelector('.settings-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('changePicture').addEventListener('click', (e) => {
+        e.preventDefault();
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imageData = e.target.result;
+                    updateProfilePicture(imageData);
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        input.click();
+    });
+}
+
+function updateProfilePicture(imageData) {
+    const username = document.getElementById('userDisplayName').textContent;
+    const users = JSON.parse(localStorage.getItem('users'));
+    const userIndex = users.findIndex(u => u.username === username);
+
+    document.getElementById('profilePic').src = imageData;
+    document.getElementById('settingsProfilePic').src = imageData;
+    
+    users[userIndex].settings.profilePic = imageData;
+    localStorage.setItem('users', JSON.stringify(users));
+    
+    showNotification('Profile picture updated successfully!', 'success');
 }
 
 function setupFormAnimations() {
@@ -341,6 +384,7 @@ function deleteSite(siteId) {
 
 function showNotification(message, type) {
     const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
     notification.className = `notification ${type}`;
     notification.textContent = message;
     document.getElementById('notifications').appendChild(notification);
