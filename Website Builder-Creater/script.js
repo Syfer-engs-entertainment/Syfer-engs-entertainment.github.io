@@ -1,7 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('.auth-container').style.display = 'flex';
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('content').style.display = 'none';
 
 });
 
