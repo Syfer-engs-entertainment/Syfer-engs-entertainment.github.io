@@ -48,6 +48,11 @@ function setupProfileFeatures() {
     });
 }
 
+function toggleForms(showFormId, hideFormId) {
+    document.getElementById(showFormId).style.display = 'block';
+    document.getElementById(hideFormId).style.display = 'none';
+}
+
 function updateProfilePicture(imageData) {
     const username = document.getElementById('userDisplayName').textContent;
     const users = JSON.parse(localStorage.getItem('users'));
