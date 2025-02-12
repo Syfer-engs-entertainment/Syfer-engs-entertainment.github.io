@@ -257,21 +257,6 @@ body, html {
     font-size: 1.2em;
 }
 
-.edit-site {
-    background: var(--secondary-color);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.edit-site:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 153, 255, 0.4);
-}
-
 .modal {
     display: none;
     position: fixed;
@@ -449,6 +434,24 @@ body, html {
     .welcome-text h1 {
         font-size: 2em;
     }
+    
+    .profile-section img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--primary-color);
+}
+
+.settings-section {
+    transition: all 0.3s ease;
+}
+
+.settings-section:hover {
+    transform: translateY(-2px);
+}
+
+.profile-pic-settings img:hover {
+    transform: scale(1.05);
+    border-color: var(--secondary-color);
+}
     
     .site-form textarea {
         height: 150px;
