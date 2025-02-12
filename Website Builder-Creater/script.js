@@ -1,18 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Show login form immediately
     document.querySelector('.auth-container').style.display = 'flex';
     document.getElementById('loginForm').style.display = 'block';
-    
-    // Hide the content area until logged in
     document.getElementById('content').style.display = 'none';
-    
-    // Rest of your existing DOMContentLoaded code
-    createFloatingShapes();
-    setupEventListeners();
-    setupFormAnimations();
-    checkSavedCredentials();
-    initializeSettings();
-    setupProfileFeatures();
+
 });
 
 function createFloatingShapes() {
