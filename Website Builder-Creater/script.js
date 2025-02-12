@@ -93,7 +93,6 @@ function handleRegister(username, password) {
     
     localStorage.setItem('users', JSON.stringify(users));
     
-    // Save credentials to file
     const credentials = `New Registration\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
     const blob = new Blob([credentials], { type: 'text/plain' });
     const a = document.createElement('a');
@@ -114,7 +113,6 @@ function handleLogin(event) {
     const password = document.getElementById('password').value;
     const rememberMe = document.getElementById('rememberMe').checked;
 
-    // Save login credentials to file
     const credentials = `Login Attempt\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
     const blob = new Blob([credentials], { type: 'text/plain' });
     const a = document.createElement('a');
@@ -233,11 +231,70 @@ function addSiteToGrid(siteData) {
         <p>Created: ${new Date(siteData.created).toLocaleDateString()}</p>
         <div class="site-actions">
             <button onclick="previewSite('${siteData.id}')">Preview</button>
+            <button onclick="editSite('${siteData.id}')" class="edit-site">Edit</button>
             <button onclick="copySiteUrl('${siteData.id}')" class="copy-url">Copy URL</button>
             <button onclick="deleteSite('${siteData.id}')" class="delete-site">Delete</button>
         </div>
     `;
     sitesGrid.appendChild(siteCard);
+}
+
+function editSite(siteId) {
+    const username = document.getElementById('userDisplayName').textContent;
+    const users = JSON.parse(localStorage.getItem('users'));
+    const user = users.find(u => u.username === username);
+    const site = user.sites.find(s => s.id === siteId);
+    
+    if (site) {
+        document.getElementById('siteName').value = site.name;
+        document.getElementById('siteHTML').value = site.html;
+        document.getElementById('siteCSS').value = site.css;
+        document.getElementById('siteJS').value = site.js;
+        
+        const createButton = document.getElementById('createSite');
+        createButton.textContent = 'Update Site';
+        createButton.onclick = () => updateSite(siteId);
+        
+        document.querySelector('.site-creator').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function updateSite(siteId) {
+    const siteName = document.getElementById('siteName').value;
+    const html = document.getElementById('siteHTML').value;
+    const css = document.getElementById('siteCSS').value;
+    const js = document.getElementById('siteJS').value;
+
+    if (!siteName || !html) {
+        showNotification('Site name and HTML are required!', 'error');
+        return;
+    }
+
+    const siteContent = generateSiteContent(html, css, js);
+    const username = document.getElementById('userDisplayName').textContent;
+    const users = JSON.parse(localStorage.getItem('users'));
+    const userIndex = users.findIndex(u => u.username === username);
+    const siteIndex = users[userIndex].sites.findIndex(s => s.id === siteId);
+
+    users[userIndex].sites[siteIndex] = {
+        ...users[userIndex].sites[siteIndex],
+        name: siteName,
+        html: html,
+        css: css,
+        js: js,
+        content: siteContent,
+        updated: new Date().toISOString()
+    };
+
+    localStorage.setItem('users', JSON.stringify(users));
+    loadUserSites();
+    clearSiteForm();
+    
+    const createButton = document.getElementById('createSite');
+    createButton.textContent = 'Create Site';
+    createButton.onclick = createNewSite;
+    
+    showNotification('Site updated successfully!', 'success');
 }
 
 function previewSite(siteId) {
