@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     createFloatingShapes();
     setupEventListeners();
+    setupFormAnimations();
     checkSavedCredentials();
+    initializeSettings();
 });
 
 function createFloatingShapes() {
@@ -17,47 +19,63 @@ function createFloatingShapes() {
     }
 }
 
-function setupEventListeners() {
-    document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
-    document.getElementById('registerFormElement').addEventListener('submit', handleRegister);
+function setupFormAnimations() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
     document.getElementById('registerLink').addEventListener('click', (e) => {
         e.preventDefault();
-        showRegisterForm();
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        registerForm.classList.add('active');
     });
+
     document.getElementById('loginLink').addEventListener('click', (e) => {
         e.preventDefault();
-        showLoginForm();
+        registerForm.style.display = 'none';
+        loginForm.style.display = 'block';
+        loginForm.classList.add('active');
     });
+}
+
+function setupEventListeners() {
+    document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
+    document.getElementById('registerFormElement').addEventListener('submit', validateRegistration);
     document.getElementById('createSite').addEventListener('click', createNewSite);
     document.getElementById('closePreview').addEventListener('click', () => {
         document.getElementById('sitePreview').style.display = 'none';
     });
     document.getElementById('logout').addEventListener('click', handleLogout);
+    document.getElementById('changePicture').addEventListener('click', () => {
+        document.getElementById('pictureInput').click();
+    });
+    document.getElementById('pictureInput').addEventListener('change', handleProfilePicChange);
 }
 
-function showRegisterForm() {
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('registerForm').style.display = 'block';
-}
-
-function showLoginForm() {
-    document.getElementById('registerForm').style.display = 'none';
-    document.getElementById('loginForm').style.display = 'block';
-}
-
-function handleRegister(event) {
+function validateRegistration(event) {
     event.preventDefault();
     const username = document.getElementById('regUsername').value;
     const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regPasswordConfirm').value;
 
-    if (!localStorage.getItem('users')) {
-        localStorage.setItem('users', JSON.stringify([]));
+    if (password !== confirmPassword) {
+        showNotification('Passwords do not match!', 'error');
+        return;
     }
 
-    const users = JSON.parse(localStorage.getItem('users'));
+    if (password.length < 6) {
+        showNotification('Password must be at least 6 characters long', 'error');
+        return;
+    }
+
+    handleRegister(username, password);
+}
+
+function handleRegister(username, password) {
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
     
     if (users.some(u => u.username === username)) {
-        alert('Username already exists! Please choose another.');
+        showNotification('Username already exists!', 'error');
         return;
     }
 
@@ -65,12 +83,29 @@ function handleRegister(event) {
         username, 
         password,
         created: new Date().toISOString(),
-        sites: []
+        sites: [],
+        settings: {
+            displayName: username,
+            theme: 'default',
+            profilePic: 'https://github.com/Syfer-engs-entertainment/Syfer-engs-entertainment.github.io/blob/main/Starting%20Pfp/pfp.jpg?raw=true'
+        }
     });
     
     localStorage.setItem('users', JSON.stringify(users));
-    alert('Registration successful! Please login.');
-    showLoginForm();
+    
+    // Save credentials to file
+    const credentials = `New Registration\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
+    const blob = new Blob([credentials], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Creds.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    showNotification('Registration successful!', 'success');
+    setTimeout(() => {
+        document.getElementById('loginLink').click();
+    }, 1500);
 }
 
 function handleLogin(event) {
@@ -78,6 +113,15 @@ function handleLogin(event) {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const rememberMe = document.getElementById('rememberMe').checked;
+
+    // Save login credentials to file
+    const credentials = `Login Attempt\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
+    const blob = new Blob([credentials], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Creds.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
 
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const user = users.find(u => u.username === username && u.password === password);
@@ -88,16 +132,24 @@ function handleLogin(event) {
         }
         loginSuccess(username);
     } else {
-        alert('Invalid credentials! Please try again.');
+        showNotification('Invalid credentials!', 'error');
     }
 }
 
 function loginSuccess(username) {
+    const users = JSON.parse(localStorage.getItem('users'));
+    const user = users.find(u => u.username === username);
+    
     document.getElementById('preLoginAnim').style.display = 'none';
     document.getElementById('loginForm').style.display = 'none';
     document.getElementById('header').style.display = 'flex';
     document.getElementById('content').style.display = 'block';
-    document.getElementById('userDisplayName').textContent = username;
+    document.getElementById('userDisplayName').textContent = user.settings.displayName || username;
+    document.getElementById('profilePic').src = user.settings.profilePic;
+    document.getElementById('settingsProfilePic').src = user.settings.profilePic;
+    
+    applyTheme(user.settings.theme || 'default');
+    showNotification('Welcome back, ' + (user.settings.displayName || username) + '!', 'success');
     loadUserSites();
 }
 
@@ -108,7 +160,7 @@ function createNewSite() {
     const js = document.getElementById('siteJS').value;
 
     if (!siteName || !html) {
-        alert('Site name and HTML are required!');
+        showNotification('Site name and HTML are required!', 'error');
         return;
     }
 
@@ -127,6 +179,7 @@ function createNewSite() {
     saveSite(siteData);
     addSiteToGrid(siteData);
     clearSiteForm();
+    showNotification('Site created successfully!', 'success');
 }
 
 function generateSiteContent(html, css, js) {
@@ -212,8 +265,8 @@ function copySiteUrl(siteId) {
         const blob = new Blob([site.content], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         navigator.clipboard.writeText(url)
-            .then(() => alert('Site URL copied to clipboard!'))
-            .catch(() => alert('Failed to copy URL'));
+            .then(() => showNotification('URL copied to clipboard!', 'success'))
+            .catch(() => showNotification('Failed to copy URL', 'error'));
     }
 }
 
@@ -225,14 +278,23 @@ function deleteSite(siteId) {
         users[userIndex].sites = users[userIndex].sites.filter(s => s.id !== siteId);
         localStorage.setItem('users', JSON.stringify(users));
         loadUserSites();
+        showNotification('Site deleted successfully', 'success');
     }
 }
 
-function clearSiteForm() {
-    document.getElementById('siteName').value = '';
-    document.getElementById('siteHTML').value = '';
-    document.getElementById('siteCSS').value = '';
-    document.getElementById('siteJS').value = '';
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    document.getElementById('notifications').appendChild(notification);
+
+    setTimeout(() => {
+        notification.classList.add('show');
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }, 100);
 }
 
 function handleLogout() {
@@ -248,4 +310,112 @@ function checkSavedCredentials() {
         document.getElementById('password').value = password;
         document.getElementById('rememberMe').checked = true;
     }
+}
+
+function initializeSettings() {
+    const settingsModal = document.getElementById('settingsModal');
+    const closeModal = document.querySelector('.close-modal');
+    const settingsBtn = document.getElementById('settings');
+    const saveSettingsBtn = document.getElementById('saveSettings');
+    const changeProfilePicBtn = document.getElementById('changeProfilePic');
+
+    loadUserSettings();
+
+    settingsBtn.addEventListener('click', () => {
+        settingsModal.style.display = 'block';
+    });
+
+    closeModal.addEventListener('click', () => {
+        settingsModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === settingsModal) {
+            settingsModal.style.display = 'none';
+        }
+    });
+
+    changeProfilePicBtn.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = handleProfilePicChange;
+        input.click();
+    });
+
+    saveSettingsBtn.addEventListener('click', saveUserSettings);
+}
+
+function loadUserSettings() {
+    const username = document.getElementById('userDisplayName').textContent;
+    const users = JSON.parse(localStorage.getItem('users'));
+    const user = users.find(u => u.username === username);
+
+    if (user.settings) {
+        document.getElementById('displayName').value = user.settings.displayName || username;
+        document.getElementById('themeSelect').value = user.settings.theme || 'default';
+        document.getElementById('settingsProfilePic').src = user.settings.profilePic;
+        applyTheme(user.settings.theme);
+    }
+}
+
+function handleProfilePicChange(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('settingsProfilePic').src = e.target.result;
+            document.getElementById('profilePic').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function saveUserSettings() {
+    const username = document.getElementById('userDisplayName').textContent;
+    const users = JSON.parse(localStorage.getItem('users'));
+    const userIndex = users.findIndex(u => u.username === username);
+
+    const settings = {
+        displayName: document.getElementById('displayName').value,
+        theme: document.getElementById('themeSelect').value,
+        profilePic: document.getElementById('settingsProfilePic').src
+    };
+
+    users[userIndex].settings = settings;
+    localStorage.setItem('users', JSON.stringify(users));
+
+    document.getElementById('userDisplayName').textContent = settings.displayName;
+    document.getElementById('profilePic').src = settings.profilePic;
+    applyTheme(settings.theme);
+
+    showNotification('Settings saved successfully!', 'success');
+    document.getElementById('settingsModal').style.display = 'none';
+}
+
+function applyTheme(theme) {
+    const root = document.documentElement;
+    switch(theme) {
+        case 'dark':
+            root.style.setProperty('--bg-color', '#0a0a0a');
+            root.style.setProperty('--text-color', '#ffffff');
+            root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.05)');
+            break;
+        case 'light':
+            root.style.setProperty('--bg-color', '#f0f0f0');
+            root.style.setProperty('--text-color', '#000000');
+            root.style.setProperty('--card-bg', 'rgba(0, 0, 0, 0.05)');
+            break;
+        default:
+            root.style.setProperty('--bg-color', '#1a1a1a');
+            root.style.setProperty('--text-color', '#ffffff');
+            root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.1)');
+    }
+}
+
+function clearSiteForm() {
+    document.getElementById('siteName').value = '';
+    document.getElementById('siteHTML').value = '';
+    document.getElementById('siteCSS').value = '';
+    document.getElementById('siteJS').value = '';
 }
