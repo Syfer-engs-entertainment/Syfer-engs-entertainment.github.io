@@ -79,7 +79,7 @@ body, html {
     z-index: 3;
     width: 100%;
     max-width: 400px;
-    margin-top: 150px;
+    margin-top: 250px; /* Increased from 150px to 250px */
 }
 
 .form-wrapper {
