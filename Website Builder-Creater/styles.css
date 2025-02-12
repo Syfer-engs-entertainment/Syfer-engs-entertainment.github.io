@@ -257,6 +257,21 @@ body, html {
     font-size: 1.2em;
 }
 
+.edit-site {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.edit-site:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 153, 255, 0.4);
+}
+
 .modal {
     display: none;
     position: fixed;
